@@ -1,0 +1,55 @@
+services:
+
+  oracle-xe:
+    image: gvenzl/oracle-xe:21
+    container_name: oracle-xe
+
+    ports:
+    - "1521:1521"
+    - "5500:5500"
+
+    volumes:
+    - oracle-volume:/opt/oracle/oradata
+
+    networks:
+    - bookstore-network
+
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "XEPDB1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  bookstore-api:
+    image: bookstore-api:1.0
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: bookstore-api
+
+    depends_on:
+      oracle-xe:
+        condition: service_healthy
+
+    environment:
+      BOOKSTORE_DB_PASSWORD: "${BOOKSTORE_DB_PASSWORD:?BOOKSTORE_DB_PASSWORD não configurada}"
+      SPRING_DATASOURCE_URL: "jdbc:oracle:thin:@//oracle-xe:1521/XEPDB1"
+
+    ports:
+      - "8080:8080"
+
+    networks:
+      - bookstore-network
+
+volumes:
+  oracle-volume:
+    external: true
+    name: oracle-volume
+
+networks:
+  bookstore-network:
+    external: true
+    name: bookstore-network
