@@ -1,3 +1,4 @@
+# Nota geral, geralmente colocamos tudo em ingles, voce esta misturando ingles e portugues nos nomes, mantenha um padrao que sempre sera melhor 
 # Bookstore API
 
 API REST para gerenciamento de livros desenvolvida com Java, Spring Boot, Oracle Database, Docker e Docker Compose.
@@ -54,6 +55,9 @@ LivroRepository
 Spring Data JPA / Hibernate
   |
   v
+//Nada relevante, mas precisa determinar que é oracle? eu vejo como vantagem da JPA
+ nao ficar focado na tecnologia do banco entao eu so citaria a camada database, nao 
+ vou colocar isso em todo local mas serve para docker compose e coisas assim.
 Oracle Database
 ~~~
 
@@ -291,6 +295,9 @@ docker compose config -q
 O Oracle utiliza o volume Docker:
 
 ~~~text
+// Aqui por exemplo, se voce tivesse chamada de database-volume, concorda que poderia subistituir o 
+//oracle a qualquer momento sem mudar a documentação, sendo que o JPA e o Docker servem para isso,
+// sei que to sendo chato mas é para refletir sobre a forma de ver essa camada.
 oracle-volume
 ~~~
 

@@ -1,224 +1,217 @@
 package br.com.bookstore.bookstore_api.controller;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-
-
-
-import java.math.BigDecimal;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.http.MediaType;
-
-import br.com.bookstore.bookstore_api.model.Livro;
-import br.com.bookstore.bookstore_api.service.LivroService;
 import br.com.bookstore.bookstore_api.exception.GlobalExceptionHandler;
 import br.com.bookstore.bookstore_api.exception.LivroNaoEncontradoException;
+import br.com.bookstore.bookstore_api.model.Livro;
+import br.com.bookstore.bookstore_api.service.LivroService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-
-import static org.mockito.Mockito.mock;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-
+import java.math.BigDecimal;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class LivroControllerTest {
 
-    private MockMvc mockMvc;
+  private MockMvc mockMvc;
 
-    private LivroService livroService;
+  private LivroService livroService;
 
-    @BeforeEach 
-    void configurar(){
+  @BeforeEach
+  void configurar() {
 
-        livroService = mock(LivroService.class);
+    livroService = mock(LivroService.class);
 
-        LivroController livroController =
-                new LivroController(livroService);
+    LivroController livroController =
+        new LivroController(livroService);
 
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(livroController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
-    }
+    mockMvc = MockMvcBuilders
+        .standaloneSetup(livroController)
+        .setControllerAdvice(new GlobalExceptionHandler())
+        .build();
+  }
 
-    @Test 
-    void deveListarTodosOsLivros() throws Exception {
+  @Test
+  void deveListarTodosOsLivros() throws Exception {
 
-        Livro livro = new Livro();
+    Livro livro = new Livro();
 
-        livro.setId(1L);
-        livro.setTitulo("Clean Code");
-        livro.setAutor("Robert C. Martin");
-        livro.setIsbn("9780132350884");
-        livro.setPreco(new BigDecimal("89.90"));
+    livro.setId(1L);
+    livro.setTitulo("Clean Code");
+    livro.setAutor("Robert C. Martin");
+    livro.setIsbn("9780132350884");
+    livro.setPreco(new BigDecimal("89.90"));
 
-        when(livroService.listarTodos())
-                .thenReturn(List.of(livro));
+    when(livroService.listarTodos())
+        .thenReturn(List.of(livro));
 
-        mockMvc.perform(get("/livros"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].titulo").value("Clean Code"))
-                .andExpect(jsonPath("$[0].autor").value("Robert C. Martin"));
+    mockMvc.perform(get("/livros"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].id").value(1))
+        .andExpect(jsonPath("$[0].titulo").value("Clean Code"))
+        .andExpect(jsonPath("$[0].autor").value("Robert C. Martin"));
 
-        verify(livroService).listarTodos();
-    }
+    verify(livroService).listarTodos();
+  }
 
-    @Test
-    void deveBuscarLivroPorIdQuandoExistir() throws Exception{
-        
-        Livro livro = new Livro();
+  @Test
+  void deveBuscarLivroPorIdQuandoExistir() throws Exception {
 
-        livro.setId(1L);
-        livro.setTitulo("Clean Code");
-        livro.setAutor("Robert C. Martin");
-        livro.setIsbn("9780132350884");
-        livro.setPreco(new BigDecimal("89.90"));
+    Livro livro = new Livro();
 
-        when(livroService.buscarPorId(1L))
-                .thenReturn(livro);
+    livro.setId(1L);
+    livro.setTitulo("Clean Code");
+    livro.setAutor("Robert C. Martin");
+    livro.setIsbn("9780132350884");
+    livro.setPreco(new BigDecimal("89.90"));
 
-        mockMvc.perform(get("/livros/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.titulo").value("Clean Code"))
-                .andExpect(jsonPath("$.autor").value("Robert C. Martin"))
-                .andExpect(jsonPath("$.isbn").value("9780132350884"))
-                .andExpect(jsonPath("$.preco").value(89.90));
+    when(livroService.buscarPorId(1L))
+        .thenReturn(livro);
 
-        verify(livroService).buscarPorId(1L);
-    }
+    mockMvc.perform(get("/livros/1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(1))
+        .andExpect(jsonPath("$.titulo").value("Clean Code"))
+        .andExpect(jsonPath("$.autor").value("Robert C. Martin"))
+        .andExpect(jsonPath("$.isbn").value("9780132350884"))
+        .andExpect(jsonPath("$.preco").value(89.90));
 
-    @Test 
-    void deveRetornar404QuandoLivroNaoExistir() throws Exception{
+    verify(livroService).buscarPorId(1L);
+  }
 
-        when(livroService.buscarPorId(9999L))
-                .thenThrow(new LivroNaoEncontradoException(9999L));
+  @Test
+  void deveRetornar404QuandoLivroNaoExistir() throws Exception {
 
-        mockMvc.perform(get("/livros/9999"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.erro").value("Not Found"))
-                .andExpect(jsonPath("$.mensagem")
-                .value("Livro com ID 9999 não encontrado"));
-        
-        verify(livroService).buscarPorId(9999L);
-    }
+    when(livroService.buscarPorId(9999L))
+        .thenThrow(new LivroNaoEncontradoException(9999L));
 
-    @Test 
-    void deveCriarLivroQuandoDadosForemValidos() throws Exception {
+    mockMvc.perform(get("/livros/9999"))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.erro").value("Not Found"))
+        .andExpect(jsonPath("$.mensagem")
+            .value("Livro com ID 9999 não encontrado"));
 
-        Livro livroSalvo = new Livro();
+    verify(livroService).buscarPorId(9999L);
+  }
 
-        livroSalvo.setId(6L);
-        livroSalvo.setTitulo("Java Efetivo");
-        livroSalvo.setAutor("Autor Teste");
-        livroSalvo.setIsbn("1234567890");
-        livroSalvo.setPreco(new BigDecimal("49.90"));
+  @Test
+  void deveCriarLivroQuandoDadosForemValidos() throws Exception {
 
-        when(livroService.salvar(org.mockito.ArgumentMatchers.any(Livro.class)))
-                .thenReturn(livroSalvo);
+    Livro livroSalvo = new Livro();
 
-        String json = """
-                {
-                "titulo": "Java Efetivo",
-                "autor": "Autor Teste",
-                "isbn": "1234567890",
-                "preco": 49.00
-                }
-                        """;
+    livroSalvo.setId(6L);
+    livroSalvo.setTitulo("Java Efetivo");
+    livroSalvo.setAutor("Autor Teste");
+    livroSalvo.setIsbn("1234567890");
+    livroSalvo.setPreco(new BigDecimal("49.90"));
 
-        mockMvc.perform(
-                post("/livros")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(6))
-                .andExpect(jsonPath("$.titulo").value("Java Efetivo"))
-                .andExpect(jsonPath("$.autor").value("Autor Teste"))
-                .andExpect(jsonPath("$.isbn").value("1234567890"))
-                .andExpect(jsonPath("$.preco").value(49.90));
+    when(livroService.salvar(org.mockito.ArgumentMatchers.any(Livro.class)))
+        .thenReturn(livroSalvo);
 
-        verify(livroService)
-                .salvar(org.mockito.ArgumentMatchers.any(Livro.class));
-        
-    }
+    String json = """
+        {
+        "titulo": "Java Efetivo",
+        "autor": "Autor Teste",
+        "isbn": "1234567890",
+        "preco": 49.00
+        }
+        """;
 
-    @Test 
-    void deveRetornar400QuandoDadosForemInvalidos() throws Exception {
+    mockMvc.perform(
+            post("/livros")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+        )
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(6))
+        .andExpect(jsonPath("$.titulo").value("Java Efetivo"))
+        .andExpect(jsonPath("$.autor").value("Autor Teste"))
+        .andExpect(jsonPath("$.isbn").value("1234567890"))
+        .andExpect(jsonPath("$.preco").value(49.90));
 
-        String json = """
-                {
-                "titulo": "",
-                "autor": "",
-                "isbn": "1234567890123456789012345",
-                "preco": -10.00
-                }
-                """;
+    verify(livroService)
+        .salvar(org.mockito.ArgumentMatchers.any(Livro.class));
 
-        mockMvc.perform(
-                post("/livros")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
+  }
+
+  @Test
+  void deveRetornar400QuandoDadosForemInvalidos() throws Exception {
+
+    String json = """
+        {
+        "titulo": "",
+        "autor": "",
+        "isbn": "1234567890123456789012345",
+        "preco": -10.00
+        }
+        """;
+
+    mockMvc.perform(
+            post("/livros")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
         )
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.titulo")
-                .value("O título do livro é obrigatório"))
+            .value("O título do livro é obrigatório"))
         .andExpect(jsonPath("$.autor")
-                .value("O autor do livro é obrigatório"))
+            .value("O autor do livro é obrigatório"))
         .andExpect(jsonPath("$.isbn")
-                .value("O ISBN deve ter no máximo 20 caracteres"))
+            .value("O ISBN deve ter no máximo 20 caracteres"))
         .andExpect(jsonPath("$.preco")
-                .value("O preço do livro deve ser um valor positivo"));
-                
-        verify(livroService, never())
-                .salvar(any(Livro.class));
-    }
+            .value("O preço do livro deve ser um valor positivo"));
 
-    @Test 
-    void deveAtualizarLivroQuandoDadosForemValidos() throws Exception {
+    verify(livroService, never())
+        .salvar(any(Livro.class));
+  }
 
-        Livro livroAtualizado = new Livro();
+  @Test
+  void deveAtualizarLivroQuandoDadosForemValidos() throws Exception {
 
-        livroAtualizado.setId(1L);
-        livroAtualizado.setTitulo("Clean Code - Atualizado");
-        livroAtualizado.setAutor("Robert C. Martin");
-        livroAtualizado.setIsbn("9780132350884");
-        livroAtualizado.setPreco(new BigDecimal("99.90"));
+    Livro livroAtualizado = new Livro();
 
-        when(
-             livroService.atualizar(
-                org.mockito.ArgumentMatchers.eq(1L),
-                org.mockito.ArgumentMatchers.any(Livro.class)
-             )   
-        ).thenReturn(livroAtualizado);
+    livroAtualizado.setId(1L);
+    livroAtualizado.setTitulo("Clean Code - Atualizado");
+    livroAtualizado.setAutor("Robert C. Martin");
+    livroAtualizado.setIsbn("9780132350884");
+    livroAtualizado.setPreco(new BigDecimal("99.90"));
 
-        String json = """
-                        {
-                        "titulo": "Clean Code - Atualizado",
-                        "autor": "Robert C. Martin",
-                        "isbn": "9780132350884",
-                        "preco": 99.90
-                        }
-                        """;
+    when(
+        livroService.atualizar(
+            org.mockito.ArgumentMatchers.eq(1L),
+            org.mockito.ArgumentMatchers.any(Livro.class)
+        )
+    ).thenReturn(livroAtualizado);
 
-        mockMvc.perform(
-                put("/livros/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
+    String json = """
+        {
+        "titulo": "Clean Code - Atualizado",
+        "autor": "Robert C. Martin",
+        "isbn": "9780132350884",
+        "preco": 99.90
+        }
+        """;
+
+    mockMvc.perform(
+            put("/livros/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
         )
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(1))
@@ -227,33 +220,33 @@ public class LivroControllerTest {
         .andExpect(jsonPath("$.isbn").value("9780132350884"))
         .andExpect(jsonPath("$.preco").value(99.90));
 
-        verify(livroService).atualizar(
-               org.mockito.ArgumentMatchers.eq(1L),
-               org.mockito.ArgumentMatchers.any(Livro.class) 
-        );
-    }
+    verify(livroService).atualizar(
+        org.mockito.ArgumentMatchers.eq(1L),
+        org.mockito.ArgumentMatchers.any(Livro.class)
+    );
+  }
 
-    @Test
-    void deveRetornar404AoAtualizarLivroQueNaoExiste() throws Exception{
+  @Test
+  void deveRetornar404AoAtualizarLivroQueNaoExiste() throws Exception {
 
-        when(
-             livroService.atualizar(
-                org.mockito.ArgumentMatchers.eq(9999L),
-                org.mockito.ArgumentMatchers.any(Livro.class)
-             )   
-        ).thenThrow(new LivroNaoEncontradoException(9999L));
+    when(
+        livroService.atualizar(
+            org.mockito.ArgumentMatchers.eq(9999L),
+            org.mockito.ArgumentMatchers.any(Livro.class)
+        )
+    ).thenThrow(new LivroNaoEncontradoException(9999L));
 
-        String json = """
-                        {
-                        "titulo": "Livro Teste",
-                        "autor": "Autor Teste",
-                        "isbn": "1234567890",
-                        "preco": 10.00
-                        }
-                        """;
+    String json = """
+        {
+        "titulo": "Livro Teste",
+        "autor": "Autor Teste",
+        "isbn": "1234567890",
+        "preco": 10.00
+        }
+        """;
 
-        mockMvc.perform(
-                put("/livros/9999")
+    mockMvc.perform(
+            put("/livros/9999")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
         )
@@ -262,39 +255,39 @@ public class LivroControllerTest {
         .andExpect(jsonPath("$.status").value(404))
         .andExpect(jsonPath("$.erro").value("Not Found"))
         .andExpect(jsonPath("$.mensagem")
-                .value("Livro com ID 9999 não encontrado"));
+            .value("Livro com ID 9999 não encontrado"));
 
-        verify(livroService).atualizar(
-                org.mockito.ArgumentMatchers.eq(9999L),
-                org.mockito.ArgumentMatchers.any(Livro.class)
-        );
-    }
+    verify(livroService).atualizar(
+        org.mockito.ArgumentMatchers.eq(9999L),
+        org.mockito.ArgumentMatchers.any(Livro.class)
+    );
+  }
 
-    @Test
-    void deveExcluirLivroQuandoExistir() throws Exception{
+  @Test
+  void deveExcluirLivroQuandoExistir() throws Exception {
 
-        mockMvc.perform(delete("/livros/1"))
-                .andExpect(status().isNoContent());
+    mockMvc.perform(delete("/livros/1"))
+        .andExpect(status().isNoContent());
 
-        verify(livroService).excluirPorId(1L);
-    }
+    verify(livroService).excluirPorId(1L);
+  }
 
-    @Test 
-    void deveRetornar404AoExcluirLivroQueNaoExiste() throws Exception{
+  @Test
+  void deveRetornar404AoExcluirLivroQueNaoExiste() throws Exception {
 
-        org.mockito.Mockito.doThrow(
-            new LivroNaoEncontradoException(9999L)    
+    org.mockito.Mockito.doThrow(
+            new LivroNaoEncontradoException(9999L)
         )
         .when(livroService)
         .excluirPorId(9999L);
 
-        mockMvc.perform(delete("/livros/9999"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.erro").value("Not Found"))
-                .andExpect(jsonPath("$.mensagem").value("Livro com ID 9999 não encontrado"));
+    mockMvc.perform(delete("/livros/9999"))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.erro").value("Not Found"))
+        .andExpect(jsonPath("$.mensagem").value("Livro com ID 9999 não encontrado"));
 
-        verify(livroService).excluirPorId(9999L);
-    }
+    verify(livroService).excluirPorId(9999L);
+  }
 
 }
